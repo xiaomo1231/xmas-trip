@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ECEEE8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111A20" media="(prefers-color-scheme: dark)">
+<meta name="description" content="温哥华—Squamish—惠斯勒—列治文七天跨年雪旅：三版方案、真实路线地图、车票、住宿和预算。">
+<title>海天公路跨年雪旅</title>
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;900&display=swap">
+<style>
+/* Layout: a winter travel-magazine feature built around Highway 99 as a transit line —
+   hero → line strip → timeline + sticky schematic map → ticket wall → lodging → budget → shared checklist */
+:root{
+  --paper:#ECEEE8;      /* snow paper, slightly green-grey */
+  --paper-2:#E1E5DE;
+  --card:#F6F7F3;
+  --ink:#17201C;        /* pine ink */
+  --ink-2:#4B5751;
+  --ink-3:#7D8882;
+  --rule:#C6CCC3;
+  --water:#CFDCDD;
+  --water-ink:#6E8D93;
+  --road:#A9B1A9;
+  --c-full:#2B6A8B;     /* glacier blue */
+  --c-mid:#BF3F2B;      /* skylynx red */
+  --c-save:#53722F;     /* moss */
+  --ok:#3F6E44;
+  --warn:#9A6A12;
+  --v:var(--c-mid);
+  --f-display:"Noto Serif SC","Songti SC","STSong",serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+  --gut-l:max(16px, env(safe-area-inset-left, 0px));
+  --gut-r:max(16px, env(safe-area-inset-right, 0px));
+  --ease:cubic-bezier(.65,0,.35,1);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111A20; --paper-2:#17222A; --card:#1A262E;
+    --ink:#ECE8DE; --ink-2:#AEB4AE; --ink-3:#7E8783; --rule:#2C3A42;
+    --water:#162A33; --water-ink:#5E8590; --road:#46545A;
+    --c-full:#6FAACB; --c-mid:#E4705A; --c-save:#93B467; --ok:#7FB487; --warn:#D9A84A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111A20; --paper-2:#17222A; --card:#1A262E;
+  --ink:#ECE8DE; --ink-2:#AEB4AE; --ink-3:#7E8783; --rule:#2C3A42;
+  --water:#162A33; --water-ink:#5E8590; --road:#46545A;
+  --c-full:#6FAACB; --c-mid:#E4705A; --c-save:#93B467; --ok:#7FB487; --warn:#D9A84A;
+  color-scheme:dark;
+}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+body[data-v="full"]{--v:var(--c-full)}
+body[data-v="mid"]{--v:var(--c-mid)}
+body[data-v="save"]{--v:var(--c-save)}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration-color:var(--v);text-underline-offset:3px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--v);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;font-weight:900;letter-spacing:.01em}
+h2{font-size:clamp(26px,3.4vw,38px);line-height:1.2}
+h3{font-size:19px;font-weight:600}
+.badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;padding:1px 6px;border:1px solid currentColor;border-radius:2px;vertical-align:2px;white-space:nowrap}
+.badge.ok{color:var(--ok)}
+.badge.est{color:var(--warn);border-style:dashed}
+section{padding-block:56px}
+.sec-head{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:end;margin-bottom:28px}
+.sec-head .eyebrow{grid-column:1/-1}
+.sec-head p{margin:0;color:var(--ink-2);max-width:60ch;justify-self:end;text-align:right;font-size:14px}
+@media (max-width:720px){.sec-head{grid-template-columns:1fr}.sec-head p{justify-self:start;text-align:left}}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--rule)}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero-in{position:relative;padding-block:44px 0}
+.hero-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hero h1{font-size:clamp(44px,8.4vw,112px);line-height:1.02;margin-top:22px;letter-spacing:.02em}
+.hero h1 em{font-style:normal;color:var(--v);transition:color .6s}
+.hero .lede{max-width:44ch;margin:18px 0 0;color:var(--ink-2);font-size:16px}
+.ridge{display:block;width:100%;height:auto;margin-top:18px}
+.ridge path.line{fill:none;stroke:var(--ink);stroke-width:1.4;stroke-linejoin:round}
+.ridge path.fill{fill:var(--paper-2)}
+.ridge .snowcap{fill:var(--card)}
+.ridge text{font-family:var(--f-mono);font-size:10px;fill:var(--ink-3);letter-spacing:.08em}
+@keyframes draw{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
+.ridge.go path.line{stroke-dasharray:var(--len);animation:draw 1.6s var(--ease) both}
+@keyframes rise{from{transform:translateY(14px);opacity:.01}to{transform:none;opacity:1}}
+.hero.go .hero-anim{animation:rise .9s var(--ease) both}
+.hero.go .hero-anim:nth-child(2){animation-delay:.12s}
+.hero.go .hero-anim:nth-child(3){animation-delay:.24s}
+
+/* version switch */
+.vswitch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);margin-top:-1px;position:relative;background:var(--paper)}
+.vbtn{all:unset;cursor:pointer;padding:18px 18px 20px;border-right:1px solid var(--rule);display:grid;gap:4px;position:relative;transition:background .3s}
+.vbtn:last-child{border-right:0}
+.vbtn:hover{background:var(--paper-2)}
+.vbtn:focus-visible{outline:2px solid var(--v);outline-offset:-2px}
+.vbtn .vname{font-family:var(--f-display);font-weight:600;font-size:18px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.vbtn .vname small{font-family:var(--f-mono);font-size:10.5px;color:var(--vc);letter-spacing:.08em}
+.vbtn .vprice{font-family:var(--f-mono);font-size:clamp(24px,3.4vw,36px);font-weight:600;line-height:1.1;color:var(--ink-2);white-space:nowrap}
+.vbtn .vprice span{font-size:12px;font-weight:400;color:var(--ink-3);margin-left:4px}
+.vbtn .vstay{font-size:12.5px;color:var(--ink-3)}
+.vbtn::before{content:"";position:absolute;left:0;right:0;top:-1px;height:4px;background:var(--vc);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.vbtn[aria-pressed="true"]::before{transform:scaleX(1)}
+.vbtn[aria-pressed="true"] .vprice{color:var(--vc)}
+.vbtn[data-v="full"]{--vc:var(--c-full)}.vbtn[data-v="mid"]{--vc:var(--c-mid)}.vbtn[data-v="save"]{--vc:var(--c-save)}
+@media (max-width:640px){.vbtn{padding:14px 10px 16px}.vbtn .vstay{display:none}.vbtn .vname{font-size:15px}.vbtn .vprice{font-size:21px}.vbtn .vprice span{font-size:10px;margin-left:2px}}
+
+/* ---------- line strip ---------- */
+.strip{padding-block:40px 8px}
+.rail{position:relative;display:flex;align-items:flex-start;margin-top:26px;padding-top:34px}
+.rail::before{content:"";position:absolute;left:0;right:0;top:44px;height:6px;background:var(--v);border-radius:3px;transition:background .6s}
+.seg{flex:var(--n) 1 0;min-width:64px;position:relative;transition:flex-grow .7s var(--ease)}
+.seg.end{flex:0 0 auto;min-width:0}
+.stn{position:relative;display:grid;justify-items:start;gap:2px;padding-top:24px}
+.stn .dot{position:absolute;top:2px;left:0;width:20px;height:20px;border-radius:50%;background:var(--paper);border:3px solid var(--ink);transform:translate(-2px,-6px)}
+.seg.end .stn .dot{border-color:var(--v);transition:border-color .6s}
+.stn b{font-family:var(--f-display);font-weight:600;font-size:17px;white-space:nowrap}
+.stn i{font-style:normal;font-family:var(--f-mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.nights{position:absolute;top:-30px;left:26px;white-space:nowrap;display:flex;gap:5px;align-items:center;font-family:var(--f-mono);font-size:11px;color:var(--ink-2)}
+.nights .moon{width:9px;height:9px;border-radius:50%;background:var(--ink);box-shadow:inset -3px 0 0 var(--paper);transition:transform .4s var(--ease)}
+.nights .moon.in{animation:pop .45s var(--ease) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+@media (max-width:640px){.stn b{font-size:14px}.stn i{display:none}.seg{min-width:52px}}
+
+.cmp-wrap{overflow-x:auto;margin-top:34px;border-top:1px solid var(--ink)}
+.cmp{width:100%;border-collapse:collapse;min-width:620px;font-size:14px}
+.cmp th,.cmp td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+.cmp thead th{font-family:var(--f-display);font-weight:600;font-size:15px}
+.cmp tbody th{font-weight:500;color:var(--ink-3);font-size:12.5px;width:110px}
+.cmp td.on{background:color-mix(in srgb,var(--v) 9%,transparent)}
+.cmp .big{font-family:var(--f-mono);font-size:20px;font-weight:600}
+
+/* ---------- itinerary + map ---------- */
+.journey{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:40px;align-items:start}
+.map-panel{position:sticky;top:env(safe-area-inset-top,0px);height:calc(100vh - 24px);padding-block:12px;display:flex;flex-direction:column;gap:8px}
+@supports (height:100dvh){.map-panel{height:calc(100dvh - 24px)}}
+.map-box{position:relative;flex:1;min-height:0;border:1px solid var(--ink);background:var(--paper-2);overflow:hidden}
+#map{position:absolute;inset:0}
+.map-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.map-bar .where{font-family:var(--f-display);font-weight:600;font-size:16px}
+.map-tools{display:flex;gap:6px;flex-wrap:wrap}
+.chip{all:unset;cursor:pointer;font-family:var(--f-mono);font-size:11px;padding:4px 9px;border:1px solid var(--rule);border-radius:999px;color:var(--ink-2);transition:border-color .2s,color .2s,background .2s}
+.chip:hover{border-color:var(--ink);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip:focus-visible{outline:2px solid var(--v)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--ink-3);font-family:var(--f-mono)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend svg{width:26px;height:8px}
+.map-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;font-size:13.5px;color:var(--ink-2);z-index:2;background:var(--paper-2)}
+.map-msg[hidden]{display:none}
+/* markers */
+.mk{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .4s;--mc:var(--ink)}
+.mk .dot{width:22px;height:22px;border-radius:50%;background:var(--card);border:1.6px solid var(--mc);color:var(--mc);display:grid;place-items:center;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 20%,transparent);transition:transform .25s var(--ease)}
+.mk .dot svg{width:15px;height:15px;overflow:visible}
+.mk .lb{font-size:12px;font-weight:500;color:var(--ink);white-space:nowrap;text-shadow:0 0 3px var(--paper),0 0 3px var(--paper),0 0 2px var(--paper)}
+.mk.dim{opacity:.35}
+.mk.hot .dot{transform:scale(1.12);border-width:2px}
+.mk:hover .dot{transform:scale(1.18)}
+.mk:focus-visible .dot{outline:2px solid var(--v);outline-offset:2px}
+.mk.left{flex-direction:row-reverse}
+.mk.below{flex-direction:column;gap:2px}
+.far .mk .lb{display:none}
+.far .mk.hot .lb{display:inline}
+.maplibregl-popup.trip-pop .maplibregl-popup-content{background:var(--card);color:var(--ink);border:1px solid var(--ink);border-radius:0;padding:12px 14px;font-family:var(--f-body);font-size:13px;line-height:1.55;box-shadow:4px 4px 0 color-mix(in srgb,var(--ink) 18%,transparent)}
+.maplibregl-popup.trip-pop .maplibregl-popup-tip{display:none}
+.maplibregl-popup.trip-pop .maplibregl-popup-close-button{font-size:18px;color:var(--ink-3);padding:0 6px}
+.trip-pop h4{margin:0 0 2px;font-family:var(--f-display);font-size:15px}
+.trip-pop .addr{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);margin-bottom:6px}
+.trip-pop p{margin:0 0 8px}
+.trip-pop a{font-family:var(--f-mono);font-size:11.5px;color:var(--ink)}
+.maplibregl-ctrl-attrib{font-size:10.5px;background:color-mix(in srgb,var(--paper) 85%,transparent)!important;color:var(--ink-2)}
+.maplibregl-ctrl-attrib a{color:var(--ink-2)}
+.maplibregl-ctrl-scale{background:color-mix(in srgb,var(--paper) 80%,transparent);border-color:var(--ink-2);color:var(--ink-2);font-family:var(--f-mono);font-size:10px}
+.maplibregl-ctrl-group{border-radius:0;box-shadow:none;border:1px solid var(--ink)}
+.maplibregl-ctrl-group button{background-color:var(--card)}
+:root[data-theme="dark"] .maplibregl-ctrl-group button .maplibregl-ctrl-icon{filter:invert(1)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .maplibregl-ctrl-group button .maplibregl-ctrl-icon{filter:invert(1)}}
+
+/* timeline */
+.days{display:grid;gap:0;position:relative}
+.days::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:1px;background:var(--rule)}
+.day{position:relative;padding:4px 0 40px 36px;scroll-margin-top:20px}
+.day .pin{position:absolute;left:0;top:10px;width:15px;height:15px;border-radius:50%;background:var(--paper);border:2px solid var(--ink-3);transition:all .35s var(--ease)}
+.day.active .pin{border-color:var(--v);background:var(--v);transform:scale(1.25);box-shadow:0 0 0 5px color-mix(in srgb,var(--v) 18%,transparent)}
+.day-h{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;align-items:baseline;cursor:pointer}
+.day-h .date{font-family:var(--f-mono);font-size:13px;color:var(--ink-3);grid-row:span 2;padding-top:2px}
+.day.active .day-h .date{color:var(--v)}
+.day-h h3{font-size:22px;font-weight:900}
+.day-h .stay{font-size:12.5px;color:var(--ink-3)}
+.items{list-style:none;margin:14px 0 0;padding:0;display:grid}
+.items li{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;padding:8px 0;border-top:1px dashed var(--rule);font-size:14px}
+.items li .t{font-family:var(--f-mono);font-size:12px;color:var(--ink-2);padding-top:2px}
+.items li .place{all:unset;cursor:pointer;border-bottom:1px solid var(--v);font-weight:500}
+.items li .place:focus-visible{outline:2px solid var(--v)}
+.items li.leg{background:color-mix(in srgb,var(--v) 7%,transparent);border-top-style:solid;padding-inline:8px;margin-inline:-8px}
+.items li.leg .t{color:var(--v);font-weight:600}
+.spend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.spend span{font-family:var(--f-mono);font-size:11.5px;padding:2px 8px;background:var(--paper-2);border-radius:2px;color:var(--ink-2)}
+.day .note{margin-top:10px;font-size:13px;color:var(--ink-2);border-left:2px solid var(--rule);padding-left:10px}
+.day canvas.fw{position:absolute;right:0;top:-10px;width:180px;height:140px;pointer-events:none}
+@media (max-width:959px){
+  .journey{grid-template-columns:1fr;gap:0}
+  .map-panel{order:-1;height:44vh;z-index:2;background:var(--paper);padding-block:8px;border-bottom:1px solid var(--rule);margin-left:calc(-1 * var(--gut-l));margin-right:calc(-1 * var(--gut-r));padding-left:var(--gut-l);padding-right:var(--gut-r)}
+  @supports (height:100dvh){.map-panel{height:44dvh}}
+  .legend{display:none}
+  .days{padding-top:24px}
+  .items li{grid-template-columns:78px minmax(0,1fr)}
+}
+
+/* tickets */
+.tickets{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.ticket{perspective:1200px}
+.ticket .flip{display:grid;transition:transform .7s var(--ease);transform-style:preserve-3d;position:relative}
+.ticket.flipped .flip{transform:rotateY(180deg)}
+.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border:1px solid var(--ink);display:grid;grid-template-columns:52px minmax(0,1fr);min-height:190px;position:relative}
+.face.back{transform:rotateY(180deg)}
+.ticket:not(.flipped):hover .face.front{transform:rotate(-.6deg) translateY(-2px);box-shadow:3px 4px 0 color-mix(in srgb,var(--ink) 14%,transparent)}
+.face.front{transition:transform .3s var(--ease),box-shadow .3s}
+.stub{border-right:1.5px dashed var(--ink-3);display:flex;align-items:center;justify-content:center;position:relative;background:var(--paper-2)}
+.stub::before,.stub::after{content:"";position:absolute;right:-9px;width:16px;height:16px;border-radius:50%;background:var(--paper);border:1px solid var(--ink)}
+.stub::before{top:-9px;clip-path:inset(50% 0 0 0)}
+.stub::after{bottom:-9px;clip-path:inset(0 0 50% 0)}
+.stub span{writing-mode:vertical-rl;font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;color:var(--ink-2)}
+.tk{padding:14px 16px 12px;display:grid;gap:8px;align-content:start;min-width:0}
+.tk .op{font-size:12px;color:var(--ink-3);display:flex;justify-content:space-between;gap:8px}
+.tk .codes{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-weight:600;font-size:26px;line-height:1}
+.tk .codes svg{flex:1;height:10px;min-width:30px}
+.tk .names{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-2);gap:8px}
+.tk .times{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:15px}
+.tk .prices{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.tk .prices span{font-family:var(--f-mono);font-size:12px;padding:2px 8px;border:1px solid var(--rule);border-radius:2px;color:var(--ink-2)}
+.tk .prices span.pick{border-color:var(--v);background:var(--v);color:var(--card)}
+.tk .flipbtn{all:unset;cursor:pointer;font-family:var(--f-mono);font-size:11px;color:var(--v);justify-self:end}
+.tk .flipbtn:focus-visible{outline:2px solid var(--v)}
+.back .tk ul{margin:0;padding-left:16px;font-size:12.5px;color:var(--ink-2)}
+.back .tk .alts{display:flex;flex-wrap:wrap;gap:4px 10px;font-family:var(--f-mono);font-size:12px}
+.back .tk h5{margin:0;font-size:12px;color:var(--ink-3);font-weight:500}
+.local-tk .codes{font-size:18px}
+
+/* lodging */
+.lodge{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);border-left:1px solid var(--rule)}
+.lcard{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:0 0 18px;display:grid;align-content:start}
+.lplate{height:132px;background:var(--pl);position:relative;overflow:hidden;color:#F4F2EC;display:flex;align-items:flex-end;padding:12px 16px}
+.lplate b{font-family:var(--f-display);font-weight:900;font-size:30px;line-height:1;position:relative;z-index:1}
+.lplate i{position:absolute;right:14px;top:12px;font-style:normal;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;z-index:1}
+.lplate svg{position:absolute;inset:auto 0 0 0;width:100%;height:80px;opacity:.28}
+.lbody{padding:16px 16px 0;display:grid;gap:6px}
+.lbody h4{margin:0;font-family:var(--f-display);font-size:18px;font-weight:600}
+.lbody .meta{font-size:12.5px;color:var(--ink-3)}
+.lbody .total{font-family:var(--f-mono);font-size:26px;font-weight:600;color:var(--v)}
+.lbody .total small{font-size:12px;font-weight:400;color:var(--ink-3)}
+.lbody ul{margin:4px 0 0;padding-left:16px;font-size:13px;color:var(--ink-2)}
+.lbody details{margin-top:6px;font-size:13px}
+.lbody summary{cursor:pointer;font-family:var(--f-mono);font-size:11.5px;color:var(--ink-2)}
+.lbody table{width:100%;border-collapse:collapse;margin-top:6px;font-size:12.5px}
+.lbody td{padding:4px 0;border-top:1px dashed var(--rule)}
+.lbody td.n{text-align:right;font-family:var(--f-mono)}
+.lsum{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:14px;font-size:14px}
+.lsum b{font-family:var(--f-mono)}
+@media (max-width:860px){.lodge{grid-template-columns:1fr}}
+
+/* budget */
+.budget{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:40px}
+.board{background:var(--ink);color:var(--paper);padding:22px 24px 24px;display:grid;gap:10px}
+.board .lbl{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;color:color-mix(in srgb,var(--paper) 60%,transparent)}
+.flipnum{display:flex;font-family:var(--f-mono);font-weight:600;font-size:clamp(52px,7vw,84px);line-height:1;height:1em;overflow:hidden}
+.flipnum .dg{display:inline-block;height:1em;overflow:hidden;width:.62em;text-align:center}
+.flipnum .dg .col{display:flex;flex-direction:column;transition:transform .8s var(--ease)}
+.flipnum .dg .col span{height:1em;line-height:1em}
+.flipnum .sep{width:.36em;text-align:center}
+.board .sub{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--f-mono);font-size:13px;color:color-mix(in srgb,var(--paper) 78%,transparent)}
+.board .delta{font-size:13px}
+.stack{position:relative;margin-top:28px;height:34px;display:flex;background:color-mix(in srgb,var(--paper) 10%,transparent)}
+.stack .s{height:100%;transition:flex-basis .7s var(--ease),background .4s;flex:0 0 auto;border-right:1px solid var(--ink)}
+.marks{position:relative;height:30px}
+.mark{position:absolute;top:-38px;bottom:0;border-left:1px dashed color-mix(in srgb,var(--paper) 55%,transparent)}
+.mark span{position:absolute;bottom:0;left:4px;font-family:var(--f-mono);font-size:10.5px;color:color-mix(in srgb,var(--paper) 70%,transparent);white-space:nowrap}
+.cats{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:0}
+.cats li{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:6px 0;border-top:1px solid color-mix(in srgb,var(--paper) 14%,transparent);font-size:13.5px}
+.cats li i{width:10px;height:10px;display:inline-block}
+.cats li b{font-family:var(--f-mono);font-weight:600}
+.cats li small{display:block;color:color-mix(in srgb,var(--paper) 58%,transparent);font-size:11.5px}
+.toggles{display:grid;gap:0;border-top:1px solid var(--ink)}
+.tg{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule);cursor:pointer}
+.tg .tl{font-weight:500;font-size:14.5px}
+.tg .tn{grid-column:1;font-size:12.5px;color:var(--ink-3)}
+.tg .td{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-2);grid-row:1;grid-column:2;justify-self:end}
+.sw{grid-row:2;grid-column:2;justify-self:end;position:relative;width:40px;height:22px}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.sw i{position:absolute;inset:0;border-radius:11px;background:var(--rule);transition:background .3s}
+.sw i::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--card);transition:transform .3s var(--ease)}
+.sw input:checked+i{background:var(--v)}
+.sw input:checked+i::after{transform:translateX(18px)}
+.sw input:focus-visible+i{outline:2px solid var(--v);outline-offset:2px}
+@media (max-width:860px){.budget{grid-template-columns:1fr}}
+
+/* checklist */
+.todo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.55fr);gap:40px}
+.tlist{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
+.titem{display:grid;grid-template-columns:30px 88px minmax(0,1fr);gap:10px;align-items:start;padding:13px 0;border-bottom:1px solid var(--rule)}
+.titem input{appearance:none;-webkit-appearance:none;width:22px;height:22px;border:1.5px solid var(--ink);border-radius:2px;margin:1px 0 0;cursor:pointer;position:relative;background:var(--card)}
+.titem input:checked{background:var(--v);border-color:var(--v)}
+.titem input:checked::after{content:"";position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid var(--card);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.titem input:disabled{cursor:not-allowed;opacity:.55}
+.titem .when{font-family:var(--f-mono);font-size:11.5px;color:var(--v);padding-top:3px}
+.titem .what{font-size:14.5px}
+.titem.done .what{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--ink-3)}
+.titem .who{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3);margin-top:3px}
+.titem .who img{width:16px;height:16px;border-radius:50%}
+.titem .tnote{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.namefield{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin-bottom:12px}
+.namefield input{font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--rule);background:var(--card);color:var(--ink);border-radius:2px;width:12em}
+.namefield input:focus-visible{outline:2px solid var(--v);border-color:var(--v)}
+.sync{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);margin-top:12px}
+.sidebox{border:1px solid var(--rule);padding:16px 18px;font-size:13.5px;align-self:start}
+.sidebox h4{margin:0 0 8px;font-family:var(--f-display);font-size:16px}
+.sidebox ul{margin:0;padding-left:16px;color:var(--ink-2)}
+@media (max-width:860px){.todo{grid-template-columns:1fr}.titem{grid-template-columns:30px minmax(0,1fr)}.titem .when{grid-column:2;padding:0}.titem .what{grid-column:2}}
+
+footer{border-top:1px solid var(--ink);padding-block:36px 56px;font-size:13px;color:var(--ink-2)}
+.src{columns:2 280px;column-gap:40px;margin:14px 0 0;padding-left:16px}
+.src li{break-inside:avoid;margin-bottom:4px}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+
+</head>
+<body>
+<header class="hero" id="hero">
+  <canvas id="snow" aria-hidden="true"></canvas>
+  <div class="wrap hero-in">
+    <div class="hero-top hero-anim">
+      <span class="eyebrow">Sea-to-Sky Highway 99 · 49.28°N → 50.12°N</span>
+      <span class="eyebrow">2026.12.27 — 2027.01.02 · 4人 · 无车 · 每晚两间房</span>
+    </div>
+    <h1 class="hero-anim">海天公路，<br><em>跨年</em>雪旅</h1>
+    <p class="lede hero-anim">从温哥华沿 99 号公路北上：在 Squamish 看白头海雕，到惠斯勒滑雪、泡冷热浴，一起倒数跨年，最后回列治文吃火锅。下面三个版本选一个，地图、车票和预算会一起切换。</p>
+  </div>
+  <svg class="ridge" id="ridge" viewBox="0 0 1200 150" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <div class="wrap" style="padding-left:0;padding-right:0">
+    <div class="vswitch" role="group" aria-label="选择版本" id="vswitch"></div>
+  </div>
+</header>
+
+<main>
+  <section class="strip wrap" aria-labelledby="h-line">
+    <div class="sec-head">
+      <span class="eyebrow">Line 99 · 线路图</span>
+      <h2 id="h-line">每一站住几晚</h2>
+      <p>线越长，在那一站住得越久。公里数为沿公路的大致距离。</p>
+    </div>
+    <div class="rail" id="line"></div>
+    <div class="cmp-wrap"><table class="cmp" id="cmp"></table></div>
+  </section>
+
+  <section class="wrap" aria-labelledby="h-days" style="padding-top:24px">
+    <div class="sec-head">
+      <span class="eyebrow">Itinerary · 逐日行程</span>
+      <h2 id="h-days">七天怎么走</h2>
+      <p>往下滚动时，地图会跟着切到当天的路线，线路按真实道路绘制。点带下划线的地名，可以在地图上看地址、价格和导航链接。</p>
+    </div>
+    <div class="journey">
+      <div class="days" id="days"></div>
+      <aside class="map-panel" aria-label="路线地图">
+        <div class="map-bar">
+          <span class="where" id="where">全程</span>
+          <div class="map-tools"><button class="chip" id="btn-3d" type="button" aria-pressed="false">3D 地形</button><button class="chip" id="btn-all" type="button">看全程</button></div>
+        </div>
+        <div class="map-box" id="mapbox">
+          <div id="map" aria-label="99号公路沿线路线地图"></div>
+          <div class="map-msg" id="map-msg" hidden></div>
+        </div>
+        <div class="legend" aria-hidden="true">
+          <span><svg viewBox="0 0 26 8"><line x1="1" y1="4" x2="25" y2="4" stroke="var(--v)" stroke-width="3" stroke-linecap="round"/></svg>城际巴士</span>
+          <span><svg viewBox="0 0 26 8"><line x1="1" y1="4" x2="25" y2="4" stroke="var(--ink)" stroke-width="2" stroke-dasharray="6 3"/></svg>公交 / 接驳 / 出租车</span>
+          <span><svg viewBox="0 0 26 8"><line x1="1" y1="4" x2="25" y2="4" stroke="var(--ink)" stroke-width="2" stroke-dasharray="0.5 4" stroke-linecap="round"/></svg>步行</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="wrap" aria-labelledby="h-tk">
+    <div class="sec-head">
+      <span class="eyebrow">Tickets · 通勤</span>
+      <h2 id="h-tk">每一段怎么走、多少钱</h2>
+      <p>城际巴士是 Skylynx 2026/27 冬季时刻和票价。实色色块是这个版本选的票种；点“备选班次”翻到背面。</p>
+    </div>
+    <div class="tickets" id="tickets"></div>
+  </section>
+
+  <section class="wrap" aria-labelledby="h-lodge">
+    <div class="sec-head">
+      <span class="eyebrow">Stay · 住宿</span>
+      <h2 id="h-lodge">住在哪里</h2>
+      <p>Booking.com 2026-10-15 查到的这几天的实时价格，两间房总价，已含税费。</p>
+    </div>
+    <div class="lodge" id="lodge"></div>
+    <div class="lsum" id="lsum"></div>
+  </section>
+
+  <section class="wrap" aria-labelledby="h-budget">
+    <div class="sec-head">
+      <span class="eyebrow">Budget · 预算</span>
+      <h2 id="h-budget">每人花多少</h2>
+      <p>不含往返温哥华的机票。打开或关闭右边的选项，总价会重新计算。</p>
+    </div>
+    <div class="budget">
+      <div class="board" aria-live="polite">
+        <span class="lbl">每人合计 · CAD</span>
+        <div class="flipnum" id="flip" aria-label=""></div>
+        <div class="sub"><span id="b4"></span><span class="delta" id="bdelta"></span></div>
+        <div class="stack" id="stack"></div>
+        <div class="marks" id="marks"></div>
+        <ul class="cats" id="cats"></ul>
+      </div>
+      <div>
+        <div class="toggles" id="toggles"></div>
+        <p style="font-size:12.5px;color:var(--ink-3);margin-top:14px">税费按 BC 省规则估算：门票和课程类加 5% GST，租赁加 12%。餐饮按每天早餐自理、午餐简餐、晚餐平价餐厅估算。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" aria-labelledby="h-todo">
+    <div class="sec-head">
+      <span class="eyebrow">Checklist · 四人共享</span>
+      <h2 id="h-todo">谁订了什么</h2>
+      <p>接上 Firebase 后，任何人勾选，另外三个人打开页面就能看到是谁勾的。没接的话只保存在自己的手机里。</p>
+    </div>
+    <div class="todo">
+      <div>
+        <label class="namefield" for="myname">你的名字（勾选时显示）<input id="myname" type="text" maxlength="12" placeholder="例如：小王" autocomplete="nickname"></label>
+        <ul class="tlist" id="tlist"></ul>
+        <div class="sync" id="sync">正在读取清单…</div>
+      </div>
+      <div class="sidebox">
+        <h4>还没核实的信息</h4>
+        <ul>
+          <li>HI Whistler 能否寄存行李、有没有公共厨房</li>
+          <li>Scandinave 年底几天的营业时间</li>
+          <li>Squamish 和惠斯勒的出租车费</li>
+          <li>惠斯勒雪场 12 月的开放时间（官网待定）</li>
+          <li>2026 年跨年活动的具体时间（官方未公布）</li>
+          <li>列治文餐厅 1 月 1 日是否营业</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="eyebrow">Sources · 来源（2026-10-15 查询）</span>
+    <ul class="src">
+      <li><a href="https://yvrskylynx.com/timetable/38/" target="_blank" rel="noopener">Skylynx 2026/27 冬季时刻表</a> · <a href="https://yvrskylynx.com/prices/38/" target="_blank" rel="noopener">冬季票价</a></li>
+      <li><a href="https://www.whistler.com/skiing/lift-tickets/passes/" target="_blank" rel="noopener">WB Day Pass 价格</a></li>
+      <li><a href="https://www.whistler.com/skiing/rentals/" target="_blank" rel="noopener">惠斯勒雪具租赁参考价</a></li>
+      <li><a href="https://www.scandinave.com/whistler/rates" target="_blank" rel="noopener">Scandinave Spa 价格</a></li>
+      <li><a href="https://whistler.ca/culture-recreation/facilities/lost-lake-nordic-trails/tickets-passes" target="_blank" rel="noopener">Lost Lake 雪鞋门票</a> · <a href="https://whistler.ca/culture-recreation/facilities/lost-lake-nordic-trails/rentals" target="_blank" rel="noopener">租赁</a></li>
+      <li><a href="https://www.seatoskygondola.com/" target="_blank" rel="noopener">Sea to Sky Gondola</a></li>
+      <li><a href="https://bcparks.ca/brackendale-eagles-park/" target="_blank" rel="noopener">BC Parks：Brackendale 白头海雕</a></li>
+      <li><a href="https://www.whistler.ca/parks-recreation-culture/festivals-and-events/new-years-eve-in-whistler/" target="_blank" rel="noopener">惠斯勒跨年活动</a></li>
+      <li><a href="https://www.bctransit.com/whistler/schedules-and-maps/" target="_blank" rel="noopener">惠斯勒公交线路</a></li>
+      <li>住宿：Booking.com，4 位成人、2 间房，按各版本日期查询</li>
+      <li>地图：© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> 贡献者（ODbL），<a href="https://protomaps.com" target="_blank" rel="noopener">Protomaps</a> 打包；地形：AWS Terrain Tiles；路线：OSRM（routing.openstreetmap.de）</li>
+    </ul>
+    <p style="margin-top:20px"><span class="badge ok">已核实</span> 官网或 Booking.com 当日查到的价格；<span class="badge est">估算</span> 官方未公布，按经验估算。所有内容都还没有预订。</p>
+  </div>
+</footer>
+
+<script src="vendor/maplibre-gl.js"></script>
+<script src="vendor/pmtiles.js"></script>
+<script src="config.js"></script>
+<script>
+/* ================= data ================= */
+const P = {
+  burrard:{n:'Burrard 站集合点',addr:'Melville St, Hyatt Regency 门口',lat:49.28519,lng:-123.12064,c:'bus',net:'both',info:'Skylynx 市区上车点，靠近 SkyTrain Burrard 站。',q:'Hyatt Regency Vancouver Melville Street'},
+  yvr:{n:'YVR 机场',addr:'国际到达层',lat:49.19283,lng:-123.18291,c:'bus',net:'metro',info:'Skylynx 柜台在国际到达层扶梯旁，巴士停 9 号车位。',q:'Vancouver International Airport'},
+  hiex:{n:'Holiday Inn Express YVR',addr:'9351 Bridgeport Rd, Richmond',lat:49.19249,lng:-123.11982,c:'stay',net:'metro',info:'1/1–1/2 两间房含早餐，共 343（含税）。有免费机场接驳车，离 Canada Line Bridgeport 站约 650 米。',q:'Holiday Inn Express Vancouver Airport-Richmond'},
+  haidilao:{n:'海底捞 列治文',addr:'#200-5890 No. 3 Rd, Richmond',lat:49.17077,lng:-123.13586,c:'food',net:'metro',info:'1 月 1 日是否营业需要提前打电话确认。',q:'Haidilao Hot Pot Richmond No. 3 Road'},
+  liuyishou:{n:'刘一手火锅',addr:'4731 Garden City Rd, Richmond',lat:49.17857,lng:-123.12587,c:'food',info:'重庆火锅，近年改成任吃。1 月 1 日是否营业需要提前打电话确认。',q:'Liuyishou Hotpot Richmond Garden City Road'},
+  adventure:{n:'Squamish Adventure Centre',addr:'38551 Loggers Lane, Squamish',lat:49.70703,lng:-123.14589,c:'bus',net:'hwy',info:'Skylynx 的 Squamish 站。上下车都需要提前预约。',q:'Squamish Adventure Centre'},
+  howesound:{n:'Howe Sound Inn',addr:'37801 Cleveland Ave, Squamish',lat:49.6956,lng:-123.15638,c:'stay',info:'两间房总价（含税，免费取消）：2 晚 755，3 晚 1,112，4 晚 1,469。楼下是 Howe Sound Brewing 酒吧餐厅。',q:'Howe Sound Inn Squamish'},
+  estuary:{n:'Squamish Estuary 步道',addr:'Squamish Estuary',lat:49.70569,lng:-123.1676,c:'sight',info:'低海拔湿地步道，免费。可以看雪山，但不保证脚下有积雪。',q:'Squamish Estuary Trail'},
+  eagle:{n:'Eagle Run 观景区',addr:'41015 Government Rd, Brackendale',lat:49.74836,lng:-123.14154,c:'sight',info:'堤坝上的观景点，免费。BC Parks 说明 11–12 月是白头海雕数量高峰。',q:'Eagle Run Park Brackendale'},
+  shannon:{n:'Shannon Falls 瀑布',addr:'Shannon Falls Provincial Park',lat:49.66944,lng:-123.1559,c:'sight',info:'停车场旁的短程步道，免费。',q:'Shannon Falls Provincial Park'},
+  gondola:{n:'Sea to Sky Gondola',addr:'36800 BC-99, Squamish',lat:49.6751,lng:-123.15704,c:'sight',info:'12 月营业 9:00–17:00，最后一班下山 18:00。成人网上购票 73.95，现场 81.95，另加税。',q:'Sea to Sky Gondola'},
+  gateway:{n:'Whistler Gateway Loop',addr:'游客中心旁',lat:50.11577,lng:-122.95636,c:'bus',net:'hwy',lab:'l',info:'Skylynx 惠斯勒站，也是公交 20 路的车站。',q:'Whistler Gateway Loop'},
+  hiw:{n:'HI Whistler 青旅',addr:'1035 Legacy Way, Whistler (Cheakamus)',lat:50.07956,lng:-123.04233,c:'stay',net:'hwy',info:'两间带独立卫浴的私人房（含税，免费取消）：1 晚 934，2 晚 1,763，3 晚 2,576。坐 20 路公交到村中心约 20 分钟。',q:'HI Whistler Hostel'},
+  village:{n:'Whistler Village Gondola',addr:'村中心 · Skier’s Plaza',lat:50.11266,lng:-122.95443,c:'ski',lab:'b',info:'上山缆车入口。参考 2025 年，跨年烟花在旁边的 Skier’s Plaza 放。',q:'Whistler Village Gondola'},
+  lostlake:{n:'Lost Lake PassivHaus',addr:'Lost Lake Park, Whistler',lat:50.12029,lng:-122.94829,c:'sight',info:'雪鞋日票 15，租雪鞋 25，另加税。12/31 开放 9:00–17:00，1/1 从 10:00 开放。从村中心步行约 15–20 分钟。',q:'Lost Lake PassivHaus Whistler'},
+  scandinave:{n:'Scandinave Spa',addr:'8010 Mons Rd, Whistler',lat:50.13604,lng:-122.94794,c:'spa',info:'12/18–1/3 Thermal Journey 每人 185，另加税。含浴袍、毛巾和储物柜，需要自带泳衣。从村中心打车约 10 分钟（约 4 公里）。',q:'Scandinave Spa Whistler'}
+};
+
+const ICON={
+  bus:'<rect x="-4.6" y="-4.6" width="9.2" height="8.2" rx="2" fill="currentColor"/><rect x="-3.3" y="-3.3" width="6.6" height="2.8" fill="var(--card)"/><circle cx="-2.4" cy="2" r=".9" fill="var(--card)"/><circle cx="2.4" cy="2" r=".9" fill="var(--card)"/>',
+  stay:'<path d="M-5 4V-3.5M-5 1.5H5V4M5 1.5V-.5Q5-2 3.5-2H-.5V1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="-2.6" cy="-.6" r="1.3" fill="currentColor"/>',
+  sight:'<path d="M-5.6 4L-1.6-3.4L.9.6L2.6-1.4L5.6 4Z" fill="currentColor"/>',
+  ski:'<path d="M0-5V5M-4.3-2.5L4.3 2.5M-4.3 2.5L4.3-2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  spa:'<path d="M-3 4.5C-5 1.5-1 .5-3-4M1 4.5C-1 1.5 3 .5 1-4M4.6 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M-5.5 4.6H5.5" stroke="currentColor" stroke-width="1.5"/>',
+  food:'<path d="M-5.2-.2H5.2A5.2 5.2 0 0 1-5.2-.2Z" fill="currentColor"/><path d="M.5-5.2L3.8-1.2M2.6-5.6L5.4-1.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'
+};
+const CATC={bus:'var(--v)',stay:'var(--ink)',sight:'var(--c-save)',ski:'var(--c-full)',spa:'var(--c-full)',food:'var(--warn)'};
+
+/* shared day blocks */
+const D27=(flex)=>({d:'12.27',w:'周日',title:'温哥华 → Squamish',stay:'住 Squamish · Howe Sound Inn',
+  route:[['bus','burrard','adventure'],['walk','adventure','howesound'],['walk','howesound','estuary']],
+  items:[['09:45','在 Melville St 的 Hyatt Regency 门口集合，靠近 Burrard 站','burrard'],
+    ['10:00 → 11:00','Skylynx 标准班次到 Squamish（停靠需提前预约）','adventure',1],
+    ['11:00','步行约 20 分钟到 Howe Sound Inn 寄存行李，行李多可以打车','howesound'],
+    ['12:00','在 Downtown Squamish 吃午饭'],
+    ['13:30–15:30','走 Squamish Estuary 河口步道，看湿地和雪山。12 月底约 16:20 日落','estuary'],
+    ['16:00','去超市买早餐和零食（Save-On-Foods / Nesters）'],
+    ['18:00','在酒店楼下的 Howe Sound Brewing 吃晚饭','howesound']],
+  spend:[flex?'Skylynx 灵活票 35':'Skylynx 标准票 32','河口步道 免费']});
+const D28=(gondola)=>({d:'12.28',w:'周一',title:'白头海雕和瀑布',stay:'住 Squamish',
+  route:gondola?[['taxi','howesound','eagle'],['taxi','eagle','howesound'],['taxi','howesound','gondola']]:[['taxi','howesound','eagle'],['taxi','eagle','howesound'],['taxi','howesound','shannon']],
+  items:gondola?[
+    ['09:30–11:30','去 Brackendale 的 Eagle Run 观景区看白头海雕，免费。距市区约 6 公里，坐 Squamish 公交（单程 2.50）或打车','eagle',1],
+    ['12:00','回市区吃午饭'],
+    ['13:30–17:00','二选一：坐 Sea to Sky Gondola 观景缆车（网上购票 73.95＋税），或者去 Shannon Falls 瀑布散步（免费）','gondola'],
+    ['晚上','自由活动，早点休息']]:[
+    ['09:30–11:30','去 Brackendale 的 Eagle Run 观景区看白头海雕，免费。距市区约 6 公里，坐 Squamish 公交（单程 2.50）或打车','eagle',1],
+    ['12:00','回市区吃午饭'],
+    ['14:00–16:00','Shannon Falls 瀑布散步，免费','shannon'],
+    ['晚上','自由活动']],
+  spend:['公交 2.50 × 2','海雕 免费',gondola?'缆车 可选 73.95＋税':'瀑布 免费']});
+const D29free=(early)=>({d:'12.29',w:'周二',title:'Squamish 自由日',stay:'住 Squamish',
+  route:[['taxi','howesound','gondola']],
+  items:[['推荐（自费）','坐 Sea to Sky Gondola 观景缆车，在山顶看豪湾峡湾和雪山。12 月营业 9:00–17:00，网上购票 73.95＋税','gondola'],
+    ['免费备选','逛镇上的咖啡馆和小店，或者再走一次河口步道。这天也可以当下雨天的缓冲','estuary'],
+    ['晚上',early?'早点休息：第二天 06:40 出门去滑雪':'自由活动']],
+  spend:['缆车 可选 ~80'],note:'缆车不算在这个版本的预算里，可以在预算区打开这一项看总价。'});
+const D11=(extra)=>({d:'01.01',w:'周五',title:'惠斯勒 → 列治文',stay:'住列治文 · Holiday Inn Express',
+  route:[['transit','hiw','gateway'],['bus','gateway','yvr'],['shuttle','yvr','hiex'],['transit','hiex','haidilao']],
+  items:[['上午',extra?'睡懒觉，退房。Lost Lake 1/1 从 10:00 开放，想去还能再走一段雪鞋道':'睡懒觉，退房，坐 20 路公交回村中心','hiw'],
+    ['13:00 → 16:00','Skylynx 从 Gateway Loop 直达 YVR（也可以选 11:00 → 14:00）','gateway',1],
+    ['16:15','在机场坐酒店的免费接驳车','hiex'],
+    ['18:30','吃火锅或中餐，比如海底捞（No. 3 Rd）、刘一手（Garden City Rd）。1 月 1 日是否营业要先打电话确认','haidilao']],
+  spend:['Skylynx 标准票 55 / 灵活票 59','接驳车 免费','Canada Line 约 3（未核实）']});
+const D12={d:'01.02',w:'周六',title:'返程',stay:'',
+  route:[['shuttle','hiex','yvr']],
+  items:[['按航班','坐酒店接驳车去 YVR。接驳时间按航班提前跟酒店确认','yvr'],['国际航班','建议提前 3 小时到机场']],
+  spend:['接驳车 免费']};
+const SKI={d:'',w:'',title:'全天滑雪',route:[['transit','hiw','village']],
+  items:[['07:15','从青旅坐 20 路公交到村中心','hiw'],['07:45–08:30','取网上订好的雪具（头盔需要另租）','village'],
+    ['08:30–15:00','四人一起全天滑雪，从 Whistler Village Gondola 上山。上季开放 8:30–15:00，本季 12 月的时间官网待定','village',1],
+    ['中午','在山上的 Roundhouse 吃午饭，或者自带三明治省钱'],['15:30','还雪具，在村中心喝点东西放松']],
+  spend:['WB Day Pass 187＋税','雪具 66＋税','公交日票 5.50']};
+const NYE_TAIL=[['17:30','跨年晚餐，需要提前订位'],
+  ['19:45–21:00','惠斯勒跨年免费活动。参考 2025 年：19:45 灯光游行，20:30 Fire & Ice 火焰表演，21:00 在 Skier’s Plaza 放烟花。2026 年的流程官方还没公布','village'],
+  ['午夜','在村中心或青旅倒数，然后坐免费公交回青旅。提前查好 20 路的末班车','hiw']];
+
+const V={
+ full:{name:'完善版',tag:'最舒服',total:2053,stays:[['Squamish',2],['惠斯勒',3],['列治文',1]],
+  days:[D27(true),D28(true),
+   {d:'12.29',w:'周二',title:'去惠斯勒，走雪鞋森林',stay:'住惠斯勒 · HI Whistler',
+    route:[['walk','howesound','adventure'],['bus','adventure','gateway'],['transit','gateway','hiw'],['transit','hiw','village'],['walk','village','lostlake']],
+    items:[['08:40','退房，步行到 Adventure Centre','adventure'],['09:00 → 10:00','Skylynx 标准班次到 Whistler Gateway Loop','gateway',1],
+     ['10:15–11:15','坐 20 路公交到 HI Whistler 寄存行李（约 20 分钟车程）','hiw'],['11:30','回村中心吃午饭','village'],
+     ['13:00–15:45','在 Lost Lake PassivHaus 租雪鞋，走森林雪道。15:00 后日票降到 10','lostlake'],['傍晚','回青旅入住，在公共厨房做晚饭','hiw']],
+    spend:['Skylynx 灵活票 35','雪鞋 15＋25＋税','公交日票 5.50']},
+   Object.assign({},SKI,{d:'12.30',w:'周三',stay:'住惠斯勒',items:SKI.items.concat([['晚上','在青旅做饭，为跨年养精神']])}),
+   {d:'12.31',w:'周四',title:'泡汤，然后跨年',stay:'住惠斯勒',fw:1,
+    route:[['taxi','hiw','scandinave'],['taxi','scandinave','village'],['transit','village','hiw']],
+    items:[['上午','睡懒觉，在青旅吃早饭'],['11:00–15:00','Scandinave 北欧冷热浴：入场后不限时，记得带泳衣。冬季没有公交，打车往返','scandinave']].concat(NYE_TAIL),
+    spend:['Scandinave 185＋税','出租车 分摊','跨年夜公交 免费']},
+   D11(true),D12],
+  tickets:['t_van_sq','t_sq_wh_29','t_wh_yvr'],flex:true,
+  lodging:[{town:'Squamish',nights:2,date:'12/27–29',name:'Howe Sound Inn & Brewing',room:'2 间大床房',total:755,rate:'7.8',dist:'离市中心 0.7 公里',terms:'免费取消 · 到店付款',alts:[['Squamish Hotel（餐厅楼上，偏吵，6.2 分）',603],['August Jack Inn（8.6 分）',1015]]},
+   {town:'惠斯勒',nights:3,date:'12/29–1/1',name:'HI Whistler 青旅',room:'2 间私人房，独立卫浴',total:2576,rate:'8.1',dist:'离村中心 7.3 公里，公交 20 路',terms:'免费取消 · 到店付款',alts:[['Pangea Pod（村中心，双人胶囊舱，不是独立房间）',2807],['Listel Hotel（两间双床房）',5784],['Delta Village Suites',8136]]},
+   {town:'列治文',nights:1,date:'1/1–2',name:'Holiday Inn Express YVR',room:'2 间特大床房，含早餐',total:343,rate:'8.7',dist:'离 Bridgeport 站约 650 米',terms:'免费机场接驳 · 退改需预订时确认',alts:[['La Quinta YVR（含早，免费取消）',374],['Hampton Inn（含早）',373]]}],
+  budget:[['stay','住宿',918,'Booking.com 实时价，含税','ok'],['bus','城际巴士',129,'Skylynx 灵活票 35＋35＋59','ok'],['local','当地交通',41,'公交日票、出租车分摊','est'],['ski','滑雪',270,'雪票 187＋雪具 66＋税','ok'],['spa','Spa',200,'185＋税','ok'],['shoe','雪鞋',45,'日票 15＋租赁 25＋税','ok'],['food','餐饮',350,'7 天，含跨年晚餐','est'],['buf','机动',100,'','est']],
+  toggles:[['flex','Skylynx 用灵活票','出发 24 小时前可以免费改签或退票',true,'bus',10,'每人 +10'],['spa','去 Scandinave 泡汤','',true,'spa',200,'+200'],['shoe','Lost Lake 雪鞋','',true,'shoe',45,'+45'],['gondola','Sea to Sky Gondola 观景缆车','12/28 下午二选一',false,'opt',80,'+80'],['gear','自带头盔、雪镜等装备','省下部分租金（估算）',false,'ski',-30,'约 −30'],['sqh','Squamish 改住 Squamish Hotel','便宜，但在餐厅楼上，比较吵',false,'stay',-38,'−38']]
+ },
+ mid:{name:'1,800 版',tag:'推荐',total:1800,stays:[['Squamish',3],['惠斯勒',2],['列治文',1]],
+  days:[D27(false),D28(false),D29free(false),
+   {d:'12.30',w:'周三',title:'去惠斯勒：雪鞋和泡汤',stay:'住惠斯勒 · HI Whistler',
+    route:[['walk','howesound','adventure'],['bus','adventure','gateway'],['transit','gateway','hiw'],['transit','hiw','village'],['walk','village','lostlake'],['walk','lostlake','village'],['taxi','village','scandinave'],['taxi','scandinave','hiw']],
+    items:[['10:30','Squamish 退房','howesound'],['11:00 → 12:00','Skylynx 标准班次到 Whistler Gateway Loop','gateway',1],
+     ['12:15–13:30','坐 20 路公交到 HI Whistler 寄存行李，再回村中心吃午饭','hiw'],
+     ['13:45–15:45','在 Lost Lake PassivHaus 租雪鞋，走森林雪道，结束后走回村中心','lostlake'],
+     ['16:00','从村中心打车约 10 分钟去 Scandinave，泡北欧冷热浴，入场后不限时，记得带泳衣','scandinave'],
+     ['傍晚','打车回青旅。Spa 当天的营业时间要提前在官网确认','hiw']],
+    spend:['Skylynx 标准票 32','雪鞋 15＋25＋税','Scandinave 185＋税','出租车 分摊']},
+   Object.assign({},SKI,{d:'12.31',w:'周四',title:'全天滑雪，然后跨年',stay:'住惠斯勒',fw:1,
+    items:[['07:15','从青旅坐免费公交到村中心（跨年夜公交全天免费）','hiw']].concat(SKI.items.slice(1)).concat(NYE_TAIL),
+    route:[['transit','hiw','village'],['transit','village','hiw']],
+    spend:['WB Day Pass 187＋税','雪具 66＋税','跨年夜公交 免费']}),
+   D11(false),D12],
+  tickets:['t_van_sq','t_sq_wh_30','t_wh_yvr'],flex:false,
+  lodging:[{town:'Squamish',nights:3,date:'12/27–30',name:'Howe Sound Inn & Brewing',room:'2 间大床房',total:1112,rate:'7.8',dist:'离市中心 0.7 公里',terms:'免费取消 · 到店付款',alts:[['Squamish Hotel（餐厅楼上，偏吵，6.2 分）',905],['Crash Hotel（酒吧楼上）',1114]]},
+   {town:'惠斯勒',nights:2,date:'12/30–1/1',name:'HI Whistler 青旅',room:'2 间私人房，独立卫浴',total:1763,rate:'8.1',dist:'离村中心 7.3 公里，公交 20 路',terms:'免费取消 · 到店付款',alts:[['Pangea Pod（村中心，双人胶囊舱，不是独立房间）',1732],['一卧室公寓＋沙发床（只有一个卧室门）','2,342 起']]},
+   {town:'列治文',nights:1,date:'1/1–2',name:'Holiday Inn Express YVR',room:'2 间特大床房，含早餐',total:343,rate:'8.7',dist:'离 Bridgeport 站约 650 米',terms:'免费机场接驳 · 退改需预订时确认',alts:[['La Quinta YVR（含早，免费取消）',374],['Hampton Inn（含早）',373]]}],
+  budget:[['stay','住宿',805,'Booking.com 实时价，含税','ok'],['bus','城际巴士',119,'Skylynx 标准票 32＋32＋55','ok'],['local','当地交通',26,'公交日票、出租车分摊','est'],['ski','滑雪',270,'雪票 187＋雪具 66＋税','ok'],['spa','Spa',200,'185＋税','ok'],['shoe','雪鞋',45,'日票 15＋租赁 25＋税','ok'],['food','餐饮',300,'7 天，含跨年晚餐','est'],['buf','机动',35,'','est']],
+  toggles:[['flex','Skylynx 改用灵活票','出发 24 小时前可以免费改签或退票',false,'bus',10,'+10'],['spa','去 Scandinave 泡汤','',true,'spa',200,'+200'],['shoe','Lost Lake 雪鞋','',true,'shoe',45,'+45'],['gondola','Sea to Sky Gondola 观景缆车','12/29 自由日',false,'opt',80,'+80'],['gear','自带头盔、雪镜等装备','省下部分租金（估算）',false,'ski',-30,'约 −30'],['sqh','Squamish 改住 Squamish Hotel','便宜，但在餐厅楼上，比较吵',false,'stay',-52,'−52']]
+ },
+ save:{name:'省钱版',tag:'最便宜',total:1515,stays:[['Squamish',4],['惠斯勒',1],['列治文',1]],
+  days:[D27(false),D28(false),D29free(true),
+   {d:'12.30',w:'周三',title:'坐车去惠斯勒滑一天',stay:'回 Squamish 住',
+    route:[['walk','howesound','adventure'],['bus','adventure','gateway'],['walk','gateway','village'],['bus','gateway','adventure'],['walk','adventure','howesound']],
+    items:[['06:40','从酒店步行到 Adventure Centre','adventure'],['07:00 → 08:00','Skylynx 到 Whistler Gateway Loop','gateway',1],['08:00–08:30','步行到村中心，取网上订好的雪具','village'],
+     ['08:30–15:00','全天滑雪。上季开放 8:30–15:00，本季 12 月的时间官网待定','village'],['15:30','还雪具'],['16:00 → 17:00','Skylynx 回 Squamish','adventure',1]],
+    spend:['Skylynx 往返 42','WB Day Pass 187＋税','雪具 66＋税']},
+   {d:'12.31',w:'周四',title:'搬到惠斯勒跨年',stay:'住惠斯勒 · HI Whistler',fw:1,
+    route:[['walk','howesound','adventure'],['bus','adventure','gateway'],['transit','gateway','hiw'],['transit','hiw','village'],['walk','village','lostlake'],['transit','village','hiw']],
+    items:[['10:30','Squamish 退房','howesound'],['11:00 → 12:00','Skylynx 到 Whistler Gateway Loop','gateway',1],['12:15–13:30','坐 20 路公交到 HI Whistler 寄存行李，再回村中心。跨年夜公交全天免费','hiw'],
+     ['14:00–16:30','在 Lost Lake 走雪鞋森林路线（12/31 开放 9:00–17:00）。想泡汤的话，这段换成 Scandinave','lostlake'],['17:30','平价跨年晚餐，需要提前订位']].concat(NYE_TAIL.slice(1)),
+    spend:['Skylynx 标准票 32','雪鞋 15＋25＋税','跨年夜公交 免费']},
+   D11(false),D12],
+  tickets:['t_van_sq','t_sq_wh_rt','t_wh_sq_rt','t_sq_wh_31','t_wh_yvr'],flex:false,
+  lodging:[{town:'Squamish',nights:4,date:'12/27–31',name:'Howe Sound Inn & Brewing',room:'2 间大床房',total:1469,rate:'7.8',dist:'离市中心 0.7 公里',terms:'免费取消 · 到店付款',alts:[['Squamish Hotel（餐厅楼上，偏吵，6.2 分）',1206],['Crash Hotel（酒吧楼上）',1494]]},
+   {town:'惠斯勒',nights:1,date:'12/31–1/1',name:'HI Whistler 青旅',room:'2 间私人房，独立卫浴',total:934,rate:'8.1',dist:'离村中心 7.3 公里，公交 20 路',terms:'免费取消 · 到店付款',alts:[['Aspens 一卧室公寓（只有一个卧室门）',1321]]},
+   {town:'列治文',nights:1,date:'1/1–2',name:'Holiday Inn Express YVR',room:'2 间特大床房，含早餐',total:343,rate:'8.7',dist:'离 Bridgeport 站约 650 米',terms:'免费机场接驳 · 退改需预订时确认',alts:[['La Quinta YVR（含早，免费取消）',374],['Hampton Inn（含早）',373]]}],
+  budget:[['stay','住宿',687,'Booking.com 实时价，含税','ok'],['bus','城际巴士',161,'Skylynx 标准票 32＋42＋32＋55','ok'],['local','当地交通',21,'公交日票、出租车分摊','est'],['ski','滑雪',270,'雪票 187＋雪具 66＋税','ok'],['spa','Spa',0,'','ok'],['shoe','雪鞋',45,'日票 15＋租赁 25＋税','ok'],['food','餐饮',280,'7 天，含跨年晚餐','est'],['buf','机动',50,'','est']],
+  toggles:[['flex','Skylynx 改用灵活票','出发 24 小时前可以免费改签或退票',false,'bus',14,'+14'],['spa','去 Scandinave 泡汤','12/31 下午替代雪鞋时，可再关掉雪鞋',false,'spa',200,'+200'],['shoe','Lost Lake 雪鞋','',true,'shoe',45,'+45'],['gondola','Sea to Sky Gondola 观景缆车','12/29 自由日',false,'opt',80,'+80'],['gear','自带头盔、雪镜等装备','省下部分租金（估算）',false,'ski',-30,'约 −30'],['sqh','Squamish 改住 Squamish Hotel','便宜，但在餐厅楼上，比较吵',false,'stay',-66,'−66']]
+ }
+};
+const TK={
+ t_van_sq:{day:'12.27 SUN',from:'VAN',to:'SQM',fn:'温哥华市区',tn:'Squamish',dep:'10:00',arr:'11:00',op:'YVR Skylynx · 标准班次',std:32,flex:35,
+  alts:['06:00 → 07:00','08:00 → 09:00','13:00 → 14:00','15:30 → 16:30','17:00 → 18:00','19:00 → 20:00','行政班 12:00 → 13:00（50）'],note:'15:30、17:00 两班只在周五至周日开。'},
+ t_sq_wh_29:{day:'12.29 TUE',from:'SQM',to:'WHI',fn:'Squamish',tn:'惠斯勒',dep:'09:00',arr:'10:00',op:'YVR Skylynx · 标准班次',std:32,flex:35,
+  alts:['07:00 → 08:00','11:00 → 12:00','14:00 → 15:00','17:00 → 18:00','20:00 → 21:00','行政班 13:00 → 14:00'],note:'周一至周四的时刻。'},
+ t_sq_wh_30:{day:'12.30 WED',from:'SQM',to:'WHI',fn:'Squamish',tn:'惠斯勒',dep:'11:00',arr:'12:00',op:'YVR Skylynx · 标准班次',std:32,flex:35,
+  alts:['07:00 → 08:00','09:00 → 10:00','14:00 → 15:00','17:00 → 18:00','20:00 → 21:00','行政班 13:00 → 14:00'],note:'周一至周四的时刻。'},
+ t_sq_wh_31:{day:'12.31 THU',from:'SQM',to:'WHI',fn:'Squamish',tn:'惠斯勒',dep:'11:00',arr:'12:00',op:'YVR Skylynx · 标准班次',std:32,flex:35,
+  alts:['07:00 → 08:00','09:00 → 10:00','14:00 → 15:00','17:00 → 18:00','20:00 → 21:00'],note:'周一至周四的时刻。'},
+ t_sq_wh_rt:{day:'12.30 WED',from:'SQM',to:'WHI',fn:'Squamish',tn:'惠斯勒',dep:'07:00',arr:'08:00',op:'Skylynx · 往返票去程',std:42,flex:46,rt:1,
+  alts:['09:00 → 10:00','11:00 → 12:00'],note:'往返票 42 / 46，回程见下一张。'},
+ t_wh_sq_rt:{day:'12.30 WED',from:'WHI',to:'SQM',fn:'惠斯勒',tn:'Squamish',dep:'16:00',arr:'17:00',op:'Skylynx · 往返票回程',std:0,flex:0,rt:2,
+  alts:['13:00 → 14:00','行政班 15:00 → 16:00','19:00 → 20:00'],note:'周一至周四的时刻。'},
+ t_wh_yvr:{day:'01.01 FRI',from:'WHI',to:'YVR',fn:'惠斯勒',tn:'YVR 机场',dep:'13:00',arr:'16:00',op:'YVR Skylynx · 标准班次',std:55,flex:59,
+  alts:['06:30 → 09:30','09:00 → 12:00','11:00 → 14:00','16:00 → 19:00','18:30 → 21:30','快线 14:00 → 16:15（65 / 70）','快线 17:15 → 19:30'],note:'18:30 一班只在周五至周日开。快线不停 Squamish 和市区。'}
+};
+const LOCAL=[
+ {code:'20',name:'BC Transit 20 路 Cheakamus',route:'HI Whistler ⇄ 村中心',price:'单程 2.75 · 日票 5.50',note:'约 20 分钟。跨年夜全天免费。',ok:1},
+ {code:'SQ',name:'Squamish 公交 / 出租车',route:'市区 ⇄ Brackendale 海雕',price:'公交单程 2.50 · 日票 5',note:'出租车：Squamish Taxi 604-567-1111，车费未核实。',ok:1},
+ {code:'TX',name:'惠斯勒出租车',route:'村中心 / 青旅 ⇄ Scandinave',price:'车费未核实',note:'冬季没有公交到 Spa。Whistler Taxi 604-938-3333，Resort Cabs 604-938-1515。',ok:0},
+ {code:'SH',name:'Holiday Inn Express 接驳车',route:'YVR ⇄ 酒店',price:'免费',note:'接驳时间请按航班提前跟酒店确认。',ok:1}
+];
+const TODOS=[
+ ['pick','现在','四人确定最终选哪个版本',''],
+ ['hiw','马上','订 HI Whistler 两间私人房（按所选版本的晚数）','Booking.com 显示惠斯勒这几天的房源已经很少，可以免费取消'],
+ ['sq','马上','订 Squamish 的 Howe Sound Inn 两间房',''],
+ ['rmd','马上','订列治文 Holiday Inn Express 两间房，看清退改规则',''],
+ ['pass','11 月内','买 4 张 WB Day Pass（1 天，含高峰日期版，187 / 张）','便宜的 160 版不能在 12/26–31 用；Day Pass 限时销售'],
+ ['rent','11 月','网上预订雪具，确认每人单板还是双板、鞋码',''],
+ ['bus','11 月','订 Skylynx 车票，在 Squamish 上下车要提前预约',''],
+ ['spa','12 月初','预约 Scandinave 入场时段（省钱版可选）',''],
+ ['nye','12 月初','预订跨年晚餐的餐厅',''],
+ ['check','出发前一周','核实跨年活动时间、20 路末班车、Spa 营业时间、列治文餐厅 1/1 是否营业','']
+];
+
+/* ================= helpers ================= */
+const $=s=>document.querySelector(s);
+const h=(tag,attrs={},html='')=>{const e=document.createElement(tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(html)e.innerHTML=html;return e};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let cur='mid';
+try{const s=localStorage.getItem('trip-v');if(s&&V[s])cur=s}catch(e){}
+
+/* ================= hero ================= */
+(function ridge(){
+  const svg=$('#ridge');let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const pts=[];const peaks=[[90,58],[260,30],[330,52],[470,18],[560,48],[700,64],[820,22],[905,40],[1010,70],[1120,46]];
+  for(let x=0;x<=1200;x+=8){let y=118;for(const [px,py] of peaks){const d=Math.abs(x-px);y=Math.min(y,py+d*.62+rnd()*7)}pts.push([x,Math.min(y,128)])}
+  const d='M'+pts.map(p=>p[0]+' '+p[1].toFixed(1)).join(' L');
+  let caps='';for(const [px,py] of peaks.filter(p=>p[1]<45)){caps+=`<path class="snowcap" d="M${px-22} ${py+16} L${px} ${py+2} L${px+22} ${py+16} L${px+12} ${py+12} L${px+4} ${py+18} L${px-8} ${py+12} Z"/>`}
+  svg.innerHTML=`<path class="fill" d="${d} L1200 150 L0 150 Z"/>${caps}<path class="line" d="${d}"/><text x="470" y="12" text-anchor="middle">WHISTLER 2,182 m</text><text x="820" y="16" text-anchor="middle">BLACK TUSK</text><text x="260" y="24" text-anchor="middle">GARIBALDI 2,678 m</text>`;
+  const L=svg.querySelector('path.line').getTotalLength();svg.style.setProperty('--len',L);
+  if(!reduce){svg.classList.add('go');$('#hero').classList.add('go')}
+})();
+(function snow(){
+  if(reduce)return;const c=$('#snow'),x=c.getContext('2d');let W,H,fl=[],run=true;
+  const size=()=>{const r=c.getBoundingClientRect();W=c.width=r.width*devicePixelRatio;H=c.height=r.height*devicePixelRatio};size();addEventListener('resize',size);
+  for(let i=0;i<70;i++)fl.push({x:Math.random(),y:Math.random(),r:Math.random()*1.6+.5,s:Math.random()*.25+.12,w:Math.random()*6});
+  new IntersectionObserver(e=>{run=e[0].isIntersecting;if(run)tick()}).observe(c);
+  const col=()=>getComputedStyle(document.body).color;let t=0;
+  function tick(){if(!run)return;t+=.01;x.clearRect(0,0,W,H);x.fillStyle=col();x.globalAlpha=.32;
+    for(const f of fl){f.y+=f.s/H*devicePixelRatio*3;if(f.y>1)f.y=-.02;const px=(f.x+Math.sin(t+f.w)*.006)*W;x.beginPath();x.arc(px,f.y*H,f.r*devicePixelRatio,0,7);x.fill()}
+    requestAnimationFrame(tick)}
+  tick();
+})();
+function renderSwitch(){
+  const w=$('#vswitch');w.innerHTML='';
+  for(const k of ['full','mid','save']){const v=V[k];
+    const b=h('button',{class:'vbtn','data-v':k,'aria-pressed':String(k===cur),type:'button'},
+      `<span class="vname">${v.name}<small>${v.tag}</small></span><span class="vprice">${fmt(v.total)}<span>/ 人</span></span><span class="vstay">${v.stays.map(s=>s[0]+' '+s[1]+'晚').join(' · ')}</span>`);
+    b.onclick=()=>setV(k);w.appendChild(b)}
+}
+
+/* ================= line strip + compare ================= */
+const KM={Squamish:'约 65 km',惠斯勒:'约 125 km',列治文:'约 15 km'};
+function renderLine(){
+  const L=$('#line');const v=V[cur];
+  if(!L.children.length){
+    const segs=[['温哥华','0 km · 集合']].concat(v.stays.map(s=>[s[0],KM[s[0]]])).concat([['YVR','返程']]);
+    segs.forEach((s,i)=>{const seg=h('div',{class:'seg'+(i===segs.length-1?' end':'')});
+      seg.innerHTML=`<div class="nights"></div><div class="stn"><span class="dot"></span><b>${s[0]}</b><i>${s[1]}</i></div>`;L.appendChild(seg)});
+  }
+  const segs=L.children;segs[0].style.setProperty('--n',1.1);segs[0].querySelector('.nights').innerHTML='';
+  v.stays.forEach((s,i)=>{const seg=segs[i+1];seg.style.setProperty('--n',s[1]+.6);
+    const nn=seg.querySelector('.nights');const had=nn.querySelectorAll('.moon').length;
+    let m='';for(let j=0;j<s[1];j++)m+=`<span class="moon${j>=had?' in':''}" style="animation-delay:${(j-had)*.08}s"></span>`;
+    nn.innerHTML=m+`<span>${s[1]} 晚</span>`});
+  const rows=[['每人约',k=>`<span class="big">${fmt(V[k].total)}</span>`],
+   ['住宿',k=>V[k].stays.map(s=>s[0]+' '+s[1]+' 晚').join(' · ')],
+   ['滑雪',k=>k==='save'?'从 Squamish 坐车往返，06:40 出门':'住在惠斯勒，全天滑雪'],
+   ['Spa 泡汤',k=>k==='save'?'可选（+200）':'包含'],
+   ['雪鞋森林',()=>'包含'],['惠斯勒跨年',()=>'包含'],
+   ['巴士票',k=>V[k].flex?'灵活票（可退改）':'标准票（不可退改）'],
+   ['机动费',k=>V[k].budget.find(b=>b[0]==='buf')[2]+' / 人']];
+  $('#cmp').innerHTML='<thead><tr><th></th>'+['full','mid','save'].map(k=>`<th class="${k===cur?'on':''}" style="color:var(--c-${k})">${V[k].name}</th>`).join('')+'</tr></thead><tbody>'+
+   rows.map(r=>'<tr><th>'+r[0]+'</th>'+['full','mid','save'].map(k=>`<td class="${k===cur?'on':''}">${r[1](k)}</td>`).join('')+'</tr>').join('')+'</tbody>';
+}
+
+/* ================= map ================= */
+const box=$('#mapbox');let map=null,mapReady=false,ROUTES={},markers={},popup=null,dayIdx=-1,routeAnim=0,terrainOn=false;
+const mq=matchMedia('(prefers-color-scheme: dark)');
+const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':mq.matches};
+const abs=u=>new URL(u,location.href).href;
+const cssv=n=>getComputedStyle(document.body).getPropertyValue(n).trim();
+const ALL_BOUNDS=[[-123.30,49.15],[-122.90,50.15]];
+function mapFail(msg){const m=$('#map-msg');m.textContent=msg;m.hidden=false}
+async function loadStyle(){
+  const st=await (await fetch(isDark()?'map/style-dark.json':'map/style-light.json')).json();
+  st.glyphs=abs('fonts/')+'{fontstack}/{range}.pbf';
+  st.sources.protomaps.url='pmtiles://'+abs('map/region.pmtiles');
+  st.sources.terrain.tiles=[abs('map/terrain/')+'{z}/{x}/{y}.png'];
+  const t3=Object.assign({},st.sources.terrain);delete t3.attribution;st.sources.terrain3d=t3;
+  return st}
+async function initMap(){
+  if(!window.maplibregl||!window.pmtiles){mapFail('地图组件没有加载成功，请刷新页面。');return}
+  if(location.protocol==='file:'){mapFail('请用网站地址或本地服务器打开这个页面（运行 serve.py），直接双击 html 文件时地图无法读取数据。');return}
+  maplibregl.addProtocol('pmtiles',new pmtiles.Protocol().tile);
+  try{ROUTES=await (await fetch('map/routes.json')).json()}catch(e){ROUTES={}}
+  let style;try{style=await loadStyle()}catch(e){mapFail('地图样式加载失败，请刷新页面。');return}
+  try{
+    map=new maplibregl.Map({container:'map',style,bounds:ALL_BOUNDS,fitBoundsOptions:{padding:30},
+      maxBounds:[[-124.3,48.75],[-122.1,50.5]],minZoom:6.5,maxZoom:17,attributionControl:false,
+      localIdeographFontFamily:'"Noto Sans SC","PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif',
+      cooperativeGestures:matchMedia('(pointer: coarse)').matches,fadeDuration:200});
+  }catch(e){mapFail('这台设备的浏览器不支持 WebGL，地图无法显示。行程和价格不受影响。');return}
+  map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'top-right');
+  map.addControl(new maplibregl.ScaleControl({unit:'metric',maxWidth:90}),'bottom-left');
+  map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
+  map.on('style.load',addOverlays);
+  map.on('zoom',()=>box.classList.toggle('far',map.getZoom()<11));
+  map.on('error',e=>{const m=e&&e.error&&e.error.message||'';console.warn('map:',m);if(/WebGL/i.test(m))mapFail('地图渲染出错，请刷新页面。')});
+  new ResizeObserver(()=>map&&map.resize()).observe(box);
+  const re=()=>refreshStyle();mq.addEventListener('change',re);
+  new MutationObserver(re).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  buildMarkers();box.classList.add('far');
+}
+// theme switch: recolor the live layers instead of reloading the style (no flash, no reload race)
+async function refreshStyle(){if(!map||!mapReady)return;let st;try{st=await loadStyle()}catch(e){return}
+  for(const l of st.layers){if(!map.getLayer(l.id)||!l.paint)continue;for(const k in l.paint){try{map.setPaintProperty(l.id,k,l.paint[k])}catch(e){}}}
+  const paper=cssv('--card'),ink=cssv('--ink');map.setPaintProperty('r-bus-case','line-color',paper);
+  ['r-local','r-walk'].forEach(id=>map.setPaintProperty(id,'line-color',ink));map.setPaintProperty('busdot','circle-stroke-color',paper);recolor()}
+function firstSymbol(){const l=map.getStyle().layers.find(l=>l.type==='symbol');return l&&l.id}
+const EMPTY={type:'FeatureCollection',features:[]};
+function addOverlays(){
+  const before=firstSymbol();const paper=cssv('--card')||'#fff',ink=cssv('--ink')||'#17201C',v=cssv('--v')||'#BF3F2B';
+  ['ghost','r-bus','r-local','r-walk','busdot'].forEach(id=>{if(!map.getSource(id))map.addSource(id,{type:'geojson',data:EMPTY})});
+  const W=(a,b)=>['interpolate',['linear'],['zoom'],8,a,15,b];
+  map.addLayer({id:'ghost',type:'line',source:'ghost',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':v,'line-opacity':.3,'line-width':W(2,5)}},before);
+  map.addLayer({id:'r-bus-case',type:'line',source:'r-bus',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':paper,'line-width':W(5.5,11)}},before);
+  map.addLayer({id:'r-bus',type:'line',source:'r-bus',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':v,'line-width':W(3,6.5)}},before);
+  map.addLayer({id:'r-local',type:'line',source:'r-local',layout:{'line-join':'round'},paint:{'line-color':ink,'line-width':W(1.8,3.2),'line-dasharray':[2.4,1.6]}},before);
+  map.addLayer({id:'r-walk',type:'line',source:'r-walk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':ink,'line-width':W(2.6,4.2),'line-dasharray':[0.1,1.9]}},before);
+  map.addLayer({id:'busdot',type:'circle',source:'busdot',paint:{'circle-radius':6,'circle-color':v,'circle-stroke-color':paper,'circle-stroke-width':2.5}});
+  mapReady=true;
+  if(terrainOn)map.setTerrain({source:'terrain3d',exaggeration:1.35});
+  drawGhost();if(dayIdx>=0)drawDay(dayIdx,false,true);
+}
+function recolor(){if(!mapReady)return;const v=cssv('--v');['ghost','r-bus'].forEach(id=>map.setPaintProperty(id,'line-color',v));map.setPaintProperty('busdot','circle-color',v)}
+function legCoords(a,b){const r=ROUTES[a+'>'+b];if(r)return r.coords;const q=ROUTES[b+'>'+a];if(q)return q.coords.slice().reverse();return [[P[a].lng,P[a].lat],[P[b].lng,P[b].lat]]}
+const kindOf=m=>m==='bus'?'r-bus':m==='walk'?'r-walk':'r-local';
+const fc=list=>({type:'FeatureCollection',features:list.map(c=>({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:c}}))});
+function drawGhost(){if(!mapReady)return;const legs=[];for(const d of V[cur].days)for(const [m,a,b] of d.route)if(m==='bus')legs.push(legCoords(a,b));map.getSource('ghost').setData(fc(legs))}
+function iconSvg(c){return '<svg viewBox="-8 -8 16 16" aria-hidden="true">'+ICON[c]+'</svg>'}
+function buildMarkers(){
+  for(const id in P){const p=P[id];const el=document.createElement('button');el.type='button';
+    el.className='mk'+(id==='gateway'||id==='liuyishou'?' left':'')+(id==='village'?' below':'');el.style.setProperty('--mc',CATC[p.c]);el.setAttribute('aria-label',p.n);
+    el.innerHTML='<span class="dot">'+iconSvg(p.c)+'</span><span class="lb"></span>';el.querySelector('.lb').textContent=p.n;
+    el.addEventListener('click',e=>{e.stopPropagation();showPop(id)});
+    markers[id]=new maplibregl.Marker({element:el,anchor:id==='village'?'top':(id==='gateway'||id==='liuyishou'?'right':'left'),offset:id==='village'?[0,-11]:(id==='gateway'||id==='liuyishou'?[11,0]:[-11,0])}).setLngLat([p.lng,p.lat]).addTo(map)}
+}
+function setHot(ids){for(const id in markers){const el=markers[id].getElement();el.classList.toggle('dim',!!ids&&!ids.has(id));el.classList.toggle('hot',!!ids&&ids.has(id))}}
+function drawDay(i,animate,silent){
+  dayIdx=i;if(!mapReady)return;const d=V[cur].days[i];
+  const legs=d.route.map(([m,a,b])=>({k:kindOf(m),c:legCoords(a,b)}));
+  const ids=new Set();d.route.forEach(([,a,b])=>{ids.add(a);ids.add(b)});setHot(ids);
+  cancelAnimationFrame(routeAnim);
+  const paint=f=>{if(!mapReady||!map.getSource('r-bus'))return;const g={'r-bus':[],'r-local':[],'r-walk':[]};let dot=null;
+    for(const l of legs){const n=l.c.length;const k=Math.max(2,Math.ceil(f*n));const part=l.c.slice(0,k);g[l.k].push(part);if(l.k==='r-bus'&&!dot&&f<1)dot=part[part.length-1]}
+    for(const k in g)map.getSource(k).setData(fc(g[k]));
+    map.getSource('busdot').setData(dot?{type:'Feature',properties:{},geometry:{type:'Point',coordinates:dot}}:EMPTY)};
+  if(!animate||reduce){paint(1)}else{paint(0);const t0=performance.now()+500,dur=1500;
+    const step=now=>{const t=Math.min(1,Math.max(0,(now-t0)/dur));const e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;paint(e);if(t<1)routeAnim=requestAnimationFrame(step)};routeAnim=requestAnimationFrame(step)}
+  if(silent)return;
+  const b=new maplibregl.LngLatBounds();legs.forEach(l=>l.c.forEach(c=>b.extend(c)));
+  const pad=box.clientWidth<500?{top:40,bottom:30,left:30,right:30}:{top:60,bottom:50,left:60,right:70};
+  map.fitBounds(b,{padding:pad,maxZoom:14.5,duration:reduce?0:1700,pitch:terrainOn?55:0,essential:true});
+}
+function showDay(i){closePop();const d=V[cur].days[i];$('#where').textContent=`${d.d.replace('.','/')} ${d.w} · ${d.title}`;drawDay(i,true)}
+function showAll(){closePop();dayIdx=-1;cancelAnimationFrame(routeAnim);
+  document.querySelectorAll('.day.active').forEach(e=>e.classList.remove('active'));activeI=-1;
+  $('#where').textContent='全程 · '+V[cur].name;
+  if(!mapReady)return;['r-bus','r-local','r-walk','busdot'].forEach(k=>map.getSource(k)&&map.getSource(k).setData(EMPTY));setHot(null);
+  map.fitBounds(ALL_BOUNDS,{padding:30,duration:reduce?0:1600,pitch:terrainOn?50:0,bearing:0,essential:true})}
+function showPop(id){if(!map)return;closePop();const p=P[id];
+  const div=document.createElement('div');
+  div.innerHTML=`<h4></h4><div class="addr"></div><p></p><a target="_blank" rel="noopener">在 Google 地图打开 ↗</a>`;
+  div.querySelector('h4').textContent=p.n;div.querySelector('.addr').textContent=p.addr;div.querySelector('p').textContent=p.info;
+  div.querySelector('a').href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.q);
+  popup=new maplibregl.Popup({className:'trip-pop',offset:16,maxWidth:'280px',focusAfterOpen:false}).setLngLat([p.lng,p.lat]).setDOMContent(div).addTo(map);
+  if(!map.getBounds().contains([p.lng,p.lat]))map.easeTo({center:[p.lng,p.lat],duration:reduce?0:800})}
+function closePop(){if(popup){popup.remove();popup=null}}
+$('#btn-all').onclick=showAll;
+$('#btn-3d').onclick=()=>{if(!mapReady)return;terrainOn=!terrainOn;$('#btn-3d').setAttribute('aria-pressed',String(terrainOn));
+  if(terrainOn){map.setTerrain({source:'terrain3d',exaggeration:1.35});map.easeTo({pitch:58,bearing:-18,duration:reduce?0:1400})}
+  else{map.setTerrain(null);map.easeTo({pitch:0,bearing:0,duration:reduce?0:1000})}};
+
+/* ================= days ================= */
+let io=null,fwDone=new Set();
+function renderDays(){
+  const w=$('#days');w.innerHTML='';const v=V[cur];
+  v.days.forEach((d,i)=>{const el=h('article',{class:'day',id:'day-'+i,'data-i':i});
+    el.innerHTML=`<span class="pin"></span><div class="day-h" role="button" tabindex="0"><span class="date">${d.d}<br>${d.w}</span><h3>${d.title}</h3><span class="stay">${d.stay||'&nbsp;'}</span></div>
+     <ul class="items">${d.items.map(it=>`<li class="${it[3]?'leg':''}"><span class="t">${it[0]}</span><span>${it[2]?linkify(it[1],it[2]):esc(it[1])}</span></li>`).join('')}</ul>
+     <div class="spend">${d.spend.map(s=>`<span>${esc(s)}</span>`).join('')}</div>${d.note?`<div class="note">${esc(d.note)}</div>`:''}${d.fw?'<canvas class="fw" aria-hidden="true"></canvas>':''}`;
+    el.querySelectorAll('.place').forEach(b=>b.onclick=e=>{e.stopPropagation();activate(i,true);setTimeout(()=>showPop(b.dataset.p),reduce?0:500)});
+    const hd=el.querySelector('.day-h');hd.onclick=()=>activate(i,true);hd.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate(i,true)}};
+    w.appendChild(el)});
+  if(io)io.disconnect();
+  io=new IntersectionObserver(es=>{for(const e of es)if(e.isIntersecting)activate(+e.target.dataset.i)},{rootMargin:innerWidth<960?'-52% 0px -40% 0px':'-38% 0px -55% 0px'});
+  w.querySelectorAll('.day').forEach(d=>io.observe(d));
+}
+function linkify(text,id){const nm=P[id].n;return esc(text)+` <button class="place" type="button" data-p="${id}">${esc(nm)}</button>`}
+let activeI=-1;
+function activate(i,force){if(i===activeI&&!force)return;activeI=i;document.querySelectorAll('.day').forEach(d=>d.classList.toggle('active',+d.dataset.i===i));showDay(i);
+  const el=$('#day-'+i);const c=el&&el.querySelector('canvas.fw');if(c&&!fwDone.has(cur)){fwDone.add(cur);fireworks(c)}}
+function fireworks(c){if(reduce)return;const x=c.getContext('2d');const W=c.width=c.clientWidth*devicePixelRatio,H=c.height=c.clientHeight*devicePixelRatio;
+  const cs=getComputedStyle(document.body);const cols=[cs.getPropertyValue('--c-mid'),cs.getPropertyValue('--c-full'),cs.getPropertyValue('--warn')];
+  let ps=[];[[.35,.4,0],[.7,.3,350],[.55,.55,700]].forEach(([bx,by,dl])=>setTimeout(()=>{for(let i=0;i<34;i++){const a=i/34*Math.PI*2,s=1.2+Math.random()*1.4;ps.push({x:bx*W,y:by*H,vx:Math.cos(a)*s*devicePixelRatio,vy:Math.sin(a)*s*devicePixelRatio,l:1,c:cols[(i+dl)%3]})}},dl));
+  const t0=performance.now();(function f(now){x.clearRect(0,0,W,H);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.03*devicePixelRatio;p.vx*=.985;p.l-=.012;if(p.l>0){x.globalAlpha=p.l;x.fillStyle=p.c;x.fillRect(p.x,p.y,2*devicePixelRatio,2*devicePixelRatio)}});ps=ps.filter(p=>p.l>0);if(now-t0<3200)requestAnimationFrame(f);else x.clearRect(0,0,W,H)})(t0)}
+
+/* ================= tickets ================= */
+function renderTickets(){
+  const w=$('#tickets');w.innerHTML='';const v=V[cur];
+  v.tickets.forEach(id=>{const t=TK[id];const el=h('div',{class:'ticket'});
+    const price=t.rt===2?`<span>往返票回程，已含在去程票价里</span>`:`<span class="${v.flex?'':'pick'}">${t.rt?'往返 ':''}标准 ${t.std}</span><span class="${v.flex?'pick':''}">${t.rt?'往返 ':''}灵活 ${t.flex}</span>`;
+    const arrow='<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="5" x2="96" y2="5" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/><path d="M92 1 L100 5 L92 9" fill="none" stroke="currentColor" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>';
+    el.innerHTML=`<div class="flip">
+      <div class="face front"><div class="stub"><span>${t.day}</span></div><div class="tk">
+        <div class="op"><span>${t.op}</span><span class="badge ok">已核实</span></div>
+        <div class="codes"><span>${t.from}</span>${arrow}<span>${t.to}</span></div>
+        <div class="names"><span>${t.fn}</span><span>${t.tn}</span></div>
+        <div class="times"><span>${t.dep}</span><span>${t.arr}</span></div>
+        <div class="prices">${price}</div>
+        <button class="flipbtn" type="button">备选班次 ↻</button></div></div>
+      <div class="face back" aria-hidden="true"><div class="stub"><span>${t.day}</span></div><div class="tk">
+        <h5>同一天的其他班次</h5><div class="alts">${t.alts.map(a=>`<span>${a}</span>`).join('')}</div>
+        <h5>${esc(t.note)}</h5>
+        <ul><li>标准票不能退也不能改；灵活票出发 24 小时前可以免费改签或退票</li><li>每人免费带 2 件行李、1 件随身行李和 1 套雪具</li>${t.from==='SQM'||t.to==='SQM'?'<li>Squamish 站上下车都要提前预约</li>':''}</ul>
+        <button class="flipbtn" type="button">翻回正面 ↻</button></div></div></div>`;
+    el.querySelectorAll('.flipbtn').forEach(b=>b.onclick=()=>{const f=el.classList.toggle('flipped');el.querySelector('.front').setAttribute('aria-hidden',String(f));el.querySelector('.back').setAttribute('aria-hidden',String(!f))});
+    w.appendChild(el)});
+  LOCAL.forEach(t=>{const el=h('div',{class:'ticket local-tk'});
+    el.innerHTML=`<div class="flip"><div class="face front"><div class="stub"><span>LOCAL ${t.code}</span></div><div class="tk">
+      <div class="op"><span>${t.name}</span><span class="badge ${t.ok?'ok':'est'}">${t.ok?'已核实':'待核实'}</span></div>
+      <div class="codes" style="font-size:16px;font-family:var(--f-body)">${t.route}</div>
+      <div class="prices"><span class="pick">${t.price}</span></div>
+      <div class="names"><span>${t.note}</span></div></div></div></div>`;w.appendChild(el)});
+}
+
+/* ================= lodging ================= */
+const PL={Squamish:'#3E5A4B',惠斯勒:'#2D4F68',列治文:'#6A3C2E'};
+function renderLodge(){
+  const v=V[cur];const w=$('#lodge');w.innerHTML='';let sum=0;
+  v.lodging.forEach((l,i)=>{sum+=l.total;const c=h('article',{class:'lcard'});
+    const hills=i===0?'M0 80 L0 50 L60 20 L110 46 L170 10 L240 52 L300 30 L360 60 L400 40 L400 80Z':i===1?'M0 80 L0 60 L80 14 L130 40 L190 4 L260 44 L330 22 L400 58 L400 80Z':'M0 80 L0 64 L40 64 L40 40 L70 40 L70 60 L120 60 L120 30 L150 30 L150 58 L220 58 L220 46 L260 46 L260 62 L330 62 L330 36 L360 36 L360 64 L400 64 L400 80Z';
+    c.innerHTML=`<div class="lplate" style="--pl:${PL[l.town]}"><svg viewBox="0 0 400 80" preserveAspectRatio="none" aria-hidden="true"><path d="${hills}" fill="#F4F2EC"/></svg><i>${l.date} · ${l.nights} 晚</i><b>${l.town}</b></div>
+     <div class="lbody"><h4>${l.name}</h4><div class="meta">${l.room} · 评分 ${l.rate}</div>
+      <div class="total">${fmt(l.total)} <small>两间房总价 · 每人 ${fmt(l.total/4)}</small></div>
+      <ul><li>${l.dist}</li><li>${l.terms}</li></ul>
+      <details><summary>备选房源（${l.alts.length}）</summary><table>${l.alts.map(a=>`<tr><td>${a[0]}</td><td class="n">${typeof a[1]==='number'?fmt(a[1]):a[1]}</td></tr>`).join('')}</table></details></div>`;
+    w.appendChild(c)});
+  $('#lsum').innerHTML=`<span>住宿合计 <b>${fmt(sum)}</b> · 每人 <b>${fmt(sum/4)}</b></span><span><span class="badge ok">已核实</span> 价格会随房量变化，订房时以页面为准</span>`;
+}
+
+/* ================= budget ================= */
+let tstate={};
+const CATCOL={stay:'#8FA39A',bus:'var(--c-mid)',local:'#C98A6B',ski:'var(--c-full)',spa:'#6FA8C8',shoe:'var(--c-save)',food:'#D9A84A',opt:'#B7B0D0',buf:'#6E7A74'};
+function initToggles(){tstate={};V[cur].toggles.forEach(t=>tstate[t[0]]=t[3])}
+function calc(){const v=V[cur];const cats=v.budget.map(b=>({k:b[0],l:b[1],v:b[2],n:b[3],q:b[4]}));const get=k=>cats.find(c=>c.k===k);
+  let opt=0;
+  v.toggles.forEach(([id,,,def,cat,delta])=>{const on=tstate[id];
+    if(id==='spa'||id==='shoe'){const c=get(cat);if(def&&!on)c.v-=delta;if(!def&&on)c.v+=delta}
+    else if(cat==='opt'){if(on)opt+=delta}
+    else{if(on!==def){get(cat).v+=on?delta:-delta}}});
+  if(opt)cats.splice(cats.length-1,0,{k:'opt',l:'可选活动',v:opt,n:'Sea to Sky Gondola',q:'ok'});
+  return cats.filter(c=>c.v>0)}
+function renderBudget(first){
+  const v=V[cur];if(first)initToggles();
+  const tg=$('#toggles');tg.innerHTML='';
+  v.toggles.forEach(t=>{const [id,lb,nt,,,,ds]=t;const row=h('label',{class:'tg',for:'tg-'+id});
+    row.innerHTML=`<span class="tl">${lb}</span><span class="td">${ds}</span>${nt?`<span class="tn">${nt}</span>`:'<span class="tn"></span>'}<span class="sw"><input type="checkbox" id="tg-${id}" ${tstate[id]?'checked':''}><i></i></span>`;
+    row.querySelector('input').onchange=e=>{tstate[id]=e.target.checked;updateBudget()};tg.appendChild(row)});
+  updateBudget();
+}
+function updateBudget(){
+  const cats=calc();const tot=cats.reduce((a,c)=>a+c.v,0);const v=V[cur];
+  roll($('#flip'),tot);$('#flip').setAttribute('aria-label','每人 '+fmt(tot)+' 加元');
+  $('#b4').textContent='四人合计 '+fmt(tot*4);
+  const d=tot-v.total;$('#bdelta').textContent=d===0?'当前为版本默认组合':(d>0?'比默认多 '+d:'比默认省 '+(-d));
+  const MAX=2400;const st=$('#stack');
+  const ex={};[...st.children].forEach(c=>ex[c.dataset.k]=c);st.innerHTML='';
+  cats.forEach(c=>{const s=ex[c.k]||h('div',{class:'s'});s.dataset.k=c.k;s.style.background=CATCOL[c.k];s.title=c.l+' '+c.v;st.appendChild(s);
+    const pct=(c.v/MAX*100).toFixed(2)+'%';if(!ex[c.k]){s.style.flexBasis='0%';requestAnimationFrame(()=>requestAnimationFrame(()=>s.style.flexBasis=pct))}else s.style.flexBasis=pct});
+  $('#marks').innerHTML=[1600,1800,2000].map(m=>`<div class="mark" style="left:${m/MAX*100}%"><span>${fmt(m)}</span></div>`).join('');
+  $('#cats').innerHTML=cats.map(c=>`<li><i style="background:${CATCOL[c.k]}"></i><span>${c.l}${c.n?`<small>${esc(c.n)} <span class="badge ${c.q==='ok'?'ok':'est'}" style="color:inherit;opacity:.8">${c.q==='ok'?'已核实':'估算'}</span></small>`:''}</span><b>${fmt(c.v)}</b></li>`).join('');
+}
+function roll(el,n){const s=fmt(n);
+  if(el.dataset.len!==String(s.length)){el.innerHTML=[...s].map(ch=>/\d/.test(ch)?`<span class="dg"><span class="col">${[...'0123456789'].map(x=>`<span>${x}</span>`).join('')}</span></span>`:`<span class="sep">${ch}</span>`).join('');el.dataset.len=s.length;el.offsetHeight}
+  const cols=el.querySelectorAll('.col');let i=0;[...s].forEach(ch=>{if(/\d/.test(ch)){cols[i].style.transform=`translateY(-${+ch}em)`;i++}})}
+
+/* ================= shared checklist ================= */
+// Local by default; set window.TRIP_FIREBASE in config.js to sync the four phones through Firestore.
+let todoState={},store=null,myName='';
+try{myName=localStorage.getItem('trip-name')||''}catch(e){}
+function localStore(){const K='trip-todos';const read=()=>{try{return JSON.parse(localStorage.getItem(K)||'{}')}catch(e){return {}}};let cb=null;
+  addEventListener('storage',e=>{if(e.key===K&&cb)cb(read())});
+  return {kind:'local',subscribe(f){cb=f;f(read())},async set(id,v){const s=read();s[id]=v;localStorage.setItem(K,JSON.stringify(s));cb&&cb(s)}}}
+function loadScript(src){return new Promise((ok,no)=>{const e=document.createElement('script');e.src=src;e.onload=ok;e.onerror=no;document.head.appendChild(e)})}
+async function firebaseStore(cfg){
+  await loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
+  await loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js');
+  firebase.initializeApp(cfg);const col=firebase.firestore().collection(cfg.collection||'trip-todos');
+  return {kind:'firebase',subscribe(f,err){col.onSnapshot(s=>{const o={};s.forEach(d=>o[d.id]=d.data());f(o)},err)},set(id,v){return col.doc(id).set(v)}}}
+function renderTodos(){
+  const ul=$('#tlist');ul.innerHTML='';
+  TODOS.forEach(([id,when,what,note])=>{const st=todoState[id]||{};const li=h('li',{class:'titem'+(st.done?' done':'')});
+    li.innerHTML=`<input type="checkbox" id="td-${id}" ${st.done?'checked':''} ${store?'':'disabled'} aria-label="${esc(what)}"><span class="when">${when}</span><div><label class="what" for="td-${id}">${esc(what)}</label>${note?`<div class="tnote">${esc(note)}</div>`:''}<div class="who"></div></div>`;
+    if(st.done&&st.by){const w=li.querySelector('.who');w.textContent=st.by+' 勾选'+(st.at?' · '+new Date(st.at).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'}):'')}
+    li.querySelector('input').onchange=e=>toggleTodo(id,e.target.checked,e.target);ul.appendChild(li)});
+  const n=TODOS.filter(t=>todoState[t[0]]&&todoState[t[0]].done).length;
+  if(store)$('#sync').textContent=(store.kind==='firebase'?'已连接共享清单 · 勾选会实时同步给所有人':'只保存在这台设备的浏览器里 · 部署时接上 Firebase 后可四人同步')+` · 完成 ${n} / ${TODOS.length}`;
+}
+async function toggleTodo(id,done,input){if(!store)return;input.disabled=true;
+  try{await store.set(id,{done,by:myName||'有人',at:Date.now()})}
+  catch(e){input.checked=!done;$('#sync').textContent='这次没保存上，请检查网络后再试。'}
+  finally{input.disabled=false}}
+async function initShared(){
+  const nm=$('#myname');nm.value=myName;nm.oninput=()=>{myName=nm.value.trim().slice(0,12);try{localStorage.setItem('trip-name',myName)}catch(e){}};
+  renderTodos();
+  try{store=window.TRIP_FIREBASE?await firebaseStore(window.TRIP_FIREBASE):localStore()}
+  catch(e){try{store=localStore()}catch(e2){store=null}}
+  if(!store){$('#sync').textContent='这个浏览器不允许本地存储，清单只能看不能勾。';return}
+  store.subscribe(o=>{todoState=o||{};renderTodos()},()=>{$('#sync').textContent='共享清单连接中断，请刷新页面。'});
+}
+
+/* ================= wiring ================= */
+function setV(k){if(k===cur)return;cur=k;try{localStorage.setItem('trip-v',k)}catch(e){}apply(true)}
+function apply(changed){document.body.dataset.v=cur;renderSwitch();renderLine();renderDays();renderTickets();renderLodge();renderBudget(true);activeI=-1;
+  if(changed){recolor();drawGhost();showAll()}}
+document.body.dataset.v=cur;apply(false);$('#where').textContent='全程 · '+V[cur].name;
+initMap();initShared();
+</script>
+</body>
+</html>
